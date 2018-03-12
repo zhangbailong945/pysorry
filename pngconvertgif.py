@@ -1,4 +1,11 @@
-#python 将png图片生成为gif图片
+#-*- coding:utf-8 -*-*
+'''
+#测试功能：多个帧png图片生成gif图片
+#需要手动安装的库
+(1)、python -m pip install imageio #用于mp4 转png 帧图片
+'''
+__author__='loach'
+
 
 import imageio
 import os

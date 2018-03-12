@@ -1,3 +1,10 @@
+#-*- coding:utf-8 -*-*
+'''
+测试功能：python mp4提取帧并生成png图片
+需要手动安装的库
+(1)、python -m pip install opencv-python #用于mp4 转png 帧图片
+'''
+__author__='loach'
 
 #python 将mp4视频转为png图片
 #并在图片加上文字

@@ -1,6 +1,11 @@
 #-*- coding:utf-8 -*-*
 '''
-python 生成将mp4转为带字幕的gif图片
+#功能：python 生成将mp4转为带字幕的gif图片
+#需要手动安装的库
+(1)、python -m pip install PyQt5  #用于创建桌面应用程序
+(2)、python -m pip install opencv-python #用于mp4 转png 帧图片
+(3)、python -m pip install Pillow   #用于 cv2和pil之间的转换
+(4)、python -m pip install imageio  #用于多个png帧图片 生成 gif图片
 '''
 __author__='loach'
 
@@ -152,7 +157,7 @@ class SorryEmoji(QWidget):
                     cv_im=cv.cvtColor(frame,cv.COLOR_RGB2BGR)
                     im_resize=cv.resize(cv_im,(295,165),interpolation=cv.INTER_CUBIC)
                     pil_im=Image.fromarray(im_resize)
-                    #中文
+                    #中文字幕
                     draw=ImageDraw.Draw(pil_im)
                     font=ImageFont.truetype("source/fonts/xiaowanzi.TTF",18,encoding='utf-8')
                     if(c>12 and c<39):
