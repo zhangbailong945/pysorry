@@ -10,7 +10,7 @@
 __author__='loach'
 
 import sys
-from PyQt5.QtWidgets import QApplication,QWidget,QLabel,QVBoxLayout,QPushButton,QGroupBox,QHBoxLayout,QFormLayout,QLineEdit,QFileDialog
+from PyQt5.QtWidgets import QApplication,QWidget,QLabel,QVBoxLayout,QPushButton,QGroupBox,QHBoxLayout,QFormLayout,QLineEdit,QFileDialog,QProgressDialog,QMessageBox
 from PyQt5.QtGui import QIcon,QPixmap
 from PyQt5.QtCore import QCoreApplication,Qt
 import cv2.cv2 as cv
@@ -119,6 +119,16 @@ class SorryEmoji(QWidget):
     def saveGifFile(self):    
         #选择gif图保存的文职
         gifSaveDirectory=QFileDialog.getExistingDirectory(self,"保存到","C:/")
+        self.processDialog=QProgressDialog()
+        self.processDialog.setWindowTitle("请稍等")
+        self.processDialog.setLabelText("正在生成...")
+        self.processDialog.setCancelButtonText("取消")
+        self.processDialog.setMinimumDuration(5)
+        self.processDialog.setWindowModality(Qt.WindowModal)
+        self.processDialog.setRange(0,99)
+        self.processDialog.setValue(10)
+
+        
         #将mp4转为多个png图片
         pngPath='temp/images'
         if not os.listdir(pngPath):
@@ -131,9 +141,12 @@ class SorryEmoji(QWidget):
             time.sleep(5)
             self.mp4ToPng()
 
-        
+        self.processDialog.setValue(60)
+        QApplication.processEvents()
         #将多个png图片转为gif
         self.pngToGif(gifSaveDirectory)
+        self.processDialog.setValue(99)
+        QMessageBox.information(self,'提示',"合成成功!")
     
     #将mp4视频分解为多个帧图片png格式
     def mp4ToPng(self):
@@ -155,7 +168,7 @@ class SorryEmoji(QWidget):
                     font=cv.FONT_HERSHEY_COMPLEX
                     #CV2转PIL
                     cv_im=cv.cvtColor(frame,cv.COLOR_RGB2BGR)
-                    im_resize=cv.resize(cv_im,(295,165),interpolation=cv.INTER_CUBIC)
+                    im_resize=cv.resize(cv_im,(320,160),interpolation=cv.INTER_AREA)
                     pil_im=Image.fromarray(im_resize)
                     #中文字幕
                     draw=ImageDraw.Draw(pil_im)
@@ -182,9 +195,11 @@ class SorryEmoji(QWidget):
                         draw.text((50,135),' ',(255,255,255),font=font)
 
                     #PIL图片转CV2
-                    cv2_text_im=cv.cvtColor(np.array(pil_im),cv.COLOR_RGB2BGR)
-                    cv.imwrite('temp/images/'+str(c)+'.png',cv2_text_im)
-
+                    cv2_text_im = cv.cvtColor(
+                        np.array(pil_im), cv.COLOR_BGR2RGB)
+                    
+                    cv.imwrite('temp/images/'+str(c)+'.png',cv2_text_im,[int(cv.IMWRITE_PNG_COMPRESSION), 0])
+                    QApplication.processEvents()
                 c=c+1
             else:
                 break
@@ -197,14 +212,14 @@ class SorryEmoji(QWidget):
         #将png图片生成为gif
     def pngToGif(self,gifSaveDirectory):
         gif_name='sorry.gif'
-        duration=0.2
+        duration=0.1
         frames=[]
         path='temp/images'
         pngFiles=os.listdir(path)
         images_list=[os.path.join(path,f) for f in pngFiles]
         for image_name in images_list:
             frames.append(imageio.imread(image_name))
-
+            QApplication.processEvents()
             #保存为gif图片
         imageio.mimsave(gifSaveDirectory+'/'+gif_name,frames,'GIF',duration=duration)
 
